@@ -616,10 +616,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for(String stopKeys: theRouteKeyList){
             String[] info = stops.get(stopKeys);
             if(info != null) {
-                System.out.println("LIT");
-                Double a = Math.pow(Double.parseDouble(info[1]) - userLocation[0], 2) * 1000000000;
-                Double b = Math.pow(Double.parseDouble(info[2]) - userLocation[1], 2) * 1000000000;
-                Double distance = Math.pow(a - b, 0.5);
+                Double a = Math.pow(Double.parseDouble(info[1]) - userLocation[0], 2);
+                Double b = Math.pow(Double.parseDouble(info[2]) - userLocation[1], 2);
+                Double distance = Math.pow(Math.abs((a - b)), 0.5);
 
                 System.out.println(distance);
                 if (distance < tempDistance) {
@@ -628,8 +627,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         }
-
-        System.out.println(stopKey);
+        System.out.println(stops.get(stopKey)[0]);
 
         return stopKey;
     }
@@ -694,7 +692,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 String routekey = getBestRoute(calcClosestStopToTarget(stops, target));
                 System.out.println("bye");
-                //calcClosestRouteStopToHuman(stops, routekey);
+                calcClosestRouteStopToHuman(stops, routekey);
 
             }
 
