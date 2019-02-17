@@ -103,7 +103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         PlacesClient placesClient = Places.createClient(this);
 
 
-        downloadImage img = new downloadImage("http://worldartsme.com/images/cartoon-school-bus-clipart-1.jpg");
+        downloadImage img = new downloadImage("https://requestreduce.org/images/animated-back-to-school-clipart-9.png");
         downloadImage1 img1 = new downloadImage1("https://cdn2.iconfinder.com/data/icons/map-locations-filled-pixel-perfect/64/pin-map-location-06-512.png");
         Thread t = new Thread(img);
         t.start();
