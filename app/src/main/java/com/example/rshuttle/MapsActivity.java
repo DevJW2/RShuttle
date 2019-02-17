@@ -125,6 +125,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This class is meant to start scheduling live updates for bus locations
+     *
+     * @author Justin Yau
+     */
     private class updateLive implements Runnable {
 
         private GoogleMap map;
