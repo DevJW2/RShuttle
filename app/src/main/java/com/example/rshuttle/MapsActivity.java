@@ -586,6 +586,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This method handles the update of bus arrivals given the mark
+     *
+     * @param marker - The marker to find the arrival times for
+     *
+     * @author Justin Yau
+     */
     public void updateBusArrivals(Marker marker) {
         if(stopMarkers.size() != 0) {
             String stopId = stopMarkers.get(marker);
