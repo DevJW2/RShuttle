@@ -49,7 +49,9 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Map<Marker, String> stopMarkers;
     public Bitmap bus;
     public Bitmap stopimg;
+    public String[] currentStopList = {"","","","","","","","","",""};
 
     private Polyline currentPolyline;
     private ArrayList<Polyline> polyLines = new ArrayList();
@@ -100,6 +103,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                currentStopList));
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -713,11 +720,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(stopKeys.equals(daKey)){
                     System.out.println(this.routes.get(key).get(0));
                     routeKey = key;
+
+                    for(int i = 01; i < 10; i++) {
+                        currentStopList[0] = routes.get(key).get(0);
+                        if(i < routes.get(key).size()) {
+                            currentStopList[i] = stops.get(routes.get(key).get(i))[0];
+                        }
+                    }
+
                 }
             }
         }
         return routeKey;
     }
+
+    public Double distanceFormula(LatLng origin, LatLng dest){
+        Double a = Math.pow(origin.latitude - dest.latitude , 2);
+        Double b = Math.pow(dest.longitude - dest.longitude, 2);
+        Double distance = Math.pow(Math.abs((a - b)), 0.5);
+
+        return distance;
+    }
+
 
 
     public void createSearch(){
@@ -763,11 +787,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Double.parseDouble(stops.get(targetStopClosestKey)[2]));
                 LatLng pos4 = new LatLng(target[0], target[1]);
 
+
+
                 createPoly(pos1, pos2, "walking");
                 createPoly(pos2, pos3, "driving");
                 createPoly(pos3, pos4, "walking");
 
 
+                goToFinalLocation(pos4);
 
             }
 
@@ -931,6 +958,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+    }
+
+    public void goToFinalLocation(LatLng loc){
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 13));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(loc)      // Sets the center of the map to location user
+                .zoom(14)                   // Sets the zoom
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
