@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -37,6 +38,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -66,7 +69,7 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener {
+        GoogleMap.OnMyLocationButtonClickListener, GoogleMap.OnMyLocationClickListener, TaskLoadedCallback {
 
     private GoogleMap mMap;
     private LocationRequest mLocationRequest;
@@ -86,6 +89,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Bitmap bus;
     public Bitmap stopimg;
 
+    private Polyline currentPolyline;
+    private ArrayList<Polyline> polyLines = new ArrayList();
 
     //Initialization
     @Override
@@ -95,6 +100,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         startLocationUpdates();
         getLastLocation();
@@ -110,6 +116,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread t = new Thread(img);
         t.start();
         stopMarkers = new HashMap<>();
+    }
+
+    private String getUrl(LatLng origin, LatLng dest, String directionMode) {
+        // Origin of route
+        String str_origin = "origin=" + origin.latitude + "," + origin.longitude;
+        // Destination of route
+        String str_dest = "destination=" + dest.latitude + "," + dest.longitude;
+        // Mode
+        String mode = "mode=" + directionMode;
+        // Building the parameters to the web service
+        String parameters = str_origin + "&" + str_dest + "&" + mode;
+        // Output format
+        String output = "json";
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters + "&key=" + getString(R.string.google_api_key);
+        return url;
+    }
+
+    @Override
+    public void onTaskDone(Object... values) {
+        if (currentPolyline != null)
+            polyLines.add(currentPolyline);
+        currentPolyline = mMap.addPolyline((PolylineOptions) values[0]);
+        System.out.println("DONE");
     }
 
 
@@ -186,6 +216,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Return false so that we don't consume the event and the default behavior still occurs
         // (the camera animates to the user's current position).
         return false;
+    }
+
+    public void createPoly(LatLng origin, LatLng dest, String mode){
+        new FetchURL(MapsActivity.this).execute(getUrl(origin, dest, mode), mode);
     }
 
     //Check Permissions for Location
@@ -694,10 +728,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 target[0] = place.getLatLng().latitude;
                 target[1] = place.getLatLng().longitude;
 
+                if(currentPolyline != null){
+                    currentPolyline.remove();
+                }
 
-                String routekey = getBestRoute(calcClosestStopToTarget(stops, target));
+                if(polyLines.size() > 0){
+                    for(Polyline item: polyLines){
+                        item.remove();
+                    }
+                    polyLines.clear();
+                }
+
+                String targetStopClosestKey = calcClosestStopToTarget(stops, target);
+                String routekey = getBestRoute(targetStopClosestKey);
                 System.out.println("bye");
-                calcClosestRouteStopToHuman(stops, routekey);
+                String stopsKey = calcClosestRouteStopToHuman(stops, routekey);
+                LatLng pos1 = new LatLng(userLocation[0],userLocation[1]);
+                LatLng pos2 = new LatLng(Double.parseDouble(stops.get(stopsKey)[1]),
+                        Double.parseDouble(stops.get(stopsKey)[2]));
+                LatLng pos3 = new LatLng(Double.parseDouble(stops.get(targetStopClosestKey)[1]),
+                        Double.parseDouble(stops.get(targetStopClosestKey)[2]));
+                LatLng pos4 = new LatLng(target[0], target[1]);
+
+                createPoly(pos1, pos2, "walking");
+                createPoly(pos2, pos3, "driving");
+                createPoly(pos3, pos4, "walking");
+
+
 
             }
 
