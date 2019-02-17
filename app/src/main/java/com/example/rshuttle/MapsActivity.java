@@ -138,7 +138,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
-            //t.start();
+            t.start();
             already_Ran = true;
         }
 
