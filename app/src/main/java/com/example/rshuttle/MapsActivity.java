@@ -140,7 +140,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
-            //t.start();
+            t.start();
             already_Ran = true;
         }
 
@@ -295,7 +295,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void updateBusImage(Bitmap map) {
         this.bus = map;
         this.bus = Bitmap.createScaledBitmap(
-                this.bus, 40, 40, false);
+                this.bus, 80, 80, false);
     }
 
     /**
