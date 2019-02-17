@@ -726,10 +726,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     System.out.println(this.routes.get(key).get(0));
                     routeKey = key;
 
-                    for(int i = 0; i < 10; i++) {
-                        currentStopList[i] = "";
+                    for(int i = 01; i < 10; i++) {
+                        currentStopList[0] = routes.get(key).get(0);
                         if(i < routes.get(key).size()) {
-                            currentStopList[i] = routes.get(key).get(i);
+                            currentStopList[i] = stops.get(routes.get(key).get(i))[0];
                         }
                     }
 
@@ -793,14 +793,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng pos4 = new LatLng(target[0], target[1]);
 
 
-                if(distanceFormula(pos1, pos4) < distanceFormula(pos2, pos3)){
-                    createPoly(pos1, pos4, "walking");
-                }
-                else {
-                    createPoly(pos1, pos2, "walking");
-                    createPoly(pos2, pos3, "driving");
-                    createPoly(pos3, pos4, "walking");
-                }
+
+                createPoly(pos1, pos2, "walking");
+                createPoly(pos2, pos3, "driving");
+                createPoly(pos3, pos4, "walking");
+
 
                 goToFinalLocation(pos4);
 
