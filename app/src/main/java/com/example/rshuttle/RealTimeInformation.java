@@ -27,7 +27,19 @@ public interface RealTimeInformation {
      * @return - NULL if error occurred
      * @author Justin Yau
      */
-    public JSONArray makePostRequestOpenAPI(String url, String agencyId);
+    public JSONArray makePostRequestOpenAPIObject(String url, String agencyId);
+
+    /**
+     * This method makes a post request to the given url (has to be for rapidapi) and returns the
+     * data array.
+     *
+     * @param url - The url of the request
+     * @param agencyId - The agency id of the college that you want to find information about
+     * @return - The data array
+     * @return - NULL if error occurred
+     * @author Justin Yau
+     */
+    public JSONArray makePostRequestOpenAPIArray(String url, String agencyId);
 
     /**
      * This method will return the bus locations associated with the agencyID (College) and routeID.

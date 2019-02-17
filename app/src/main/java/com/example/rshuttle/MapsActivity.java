@@ -26,6 +26,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 
@@ -159,6 +162,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     },
                     Looper.myLooper());
+            /*
             Thread thread = new Thread(new Runnable() {
 
                 @Override
@@ -178,8 +182,66 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         e.printStackTrace();
                     }
                 }
-            });
-            thread.start();
+            });*/
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, List<String>> routes = time.routes("643");
+                        for(String key: routes.keySet()) {
+                            for(String info: routes.get(key)) {
+                                System.out.println("Route ID: " + key + "Stop: " + info);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }); */
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        try {
+                            RealTime time = new RealTime();
+                            Map<String, String[]> stops = time.stops("643");
+                            for(String key: stops.keySet()) {
+                                String[] info = stops.get(key);
+                                System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }); */
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, String> times = time.timeAtStop("643", "4224622");
+                        for(String key: times.keySet()) {
+                            System.out.println("Route ID: " + key + " Time of Arrival: " + times.get(key));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            });*/
+            //thread.start();
         }
     }
 
