@@ -518,8 +518,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-                    updateBusArrivals(marker);
-                    return true;
+
+                    if(marker.equals(mark)) {
+                        mark.showInfoWindow();
+                        updateBusArrivals(marker);
+                        return true;
+                    }
+                    mark.hideInfoWindow();
+                    return false;
+
                 }
             });
         }
@@ -570,10 +577,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Map<String, List<String>> routes = time.routes("643");
                 Map<String, String> times = time.timeAtStop("643", stopId);
                 String snip = "";
-                for(String key: times.keySet()) {
-                    snip += "Route Name: " + routes.get(key).get(0) + " Time of Arrival: " + times.get(key) + "\n";
+                if(times != null) {
+                    for(String key: times.keySet()) {
+                        snip += "Route Name: " + routes.get(key).get(0) + " Time of Arrival: " + times.get(key) + "\n";
+                    }
+                    runOnUiThread(new arrivalSnippet(mark, snip));
                 }
-                runOnUiThread(new arrivalSnippet(mark, snip));
             } catch (Exception e) {
                 e.printStackTrace();
             }
