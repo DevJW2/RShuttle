@@ -62,7 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private LocationRequest mLocationRequest;
     private boolean already_Ran = false;
     private int lastTime = 0;
-    private List<Marker> markers;
 
     private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
@@ -131,9 +130,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         lastTime++;
         if(lastTime > 3000) {
             lastTime = 0;
-            for(Marker marker: markers) {
-                marker.remove();
-            }
         }
 
 
@@ -208,6 +204,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This class is meant to be called when you want to remove the live bus markers
+     *
+     * @author Justin Yau
+     */
+    private class removeLiveRun implements Runnable {
+
+        private List<Marker> markers;
+
+        public removeLiveRun(List<Marker> markers) {
+            this.markers = markers;
+        }
+
+        @Override
+        public void run() {
+            for(Marker mark: markers) {
+                mark.remove();
+            }
+        }
+
+    }
+
     /**
      * This class is to be called when the live bus thread finishes gathering all of its live bus data
      *
@@ -217,6 +235,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         private GoogleMap map;
         private liveBus run;
+        private List<Marker> markers;
 
         public uiLive(GoogleMap map, liveBus run) {
             this.map = map;
@@ -237,6 +256,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
+            runOnUiThread(new removeLiveRun(markers));
         }
 
         public List<Marker> getMarkers() {
