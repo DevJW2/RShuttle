@@ -608,7 +608,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String snip = "";
                 if(times != null) {
                     for(String key: times.keySet()) {
-                        snip += "Route Name: " + routes.get(key).get(0) + " Time of Arrival: " + times.get(key) + "\n";
+                        snip += "Route: " + routes.get(key).get(0) + " Arrives: " + times.get(key) + "\n";
                     }
                     runOnUiThread(new arrivalSnippet(mark, snip));
                 }
@@ -620,6 +620,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This method handles the update of bus arrivals given the mark
+     *
+     * @param marker - The marker to find the arrival times for
+     *
+     * @author Justin Yau
+     */
     public void updateBusArrivals(Marker marker) {
         if(stopMarkers.size() != 0) {
             String stopId = stopMarkers.get(marker);
