@@ -579,7 +579,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void run() {
-            System.out.println(snip);
             mark.setSnippet(snip);
             mark.showInfoWindow();
         }
@@ -607,18 +606,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 RealTime time = new RealTime();
                 Map<String, List<String>> routes = time.routes("643");
-                Map<String, String> times = time.timeAtStop("643", stopId);
+                Map<String, List<String>> times = time.timeAtStop("643", stopId);
                 String snip = "";
                 if(times != null) {
                     for(String key: times.keySet()) {
-                        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-                        Date date1 = format.parse(times.get(key).split("T")[1].split("-")[0]);
-                        Date date = new Date();
-                        Date date2 = format.parse(format.format(date));
-                        long diff = date1.getTime() - date2.getTime();
-                        long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff - (minutes * 60000));
-                        snip += "Route: " + routes.get(key).get(0) + " Arrives in " + minutes + " mins " + seconds + " seconds \n";
+                        for(String ti: times.get(key)) {
+                            snip += "Route: " + routes.get(key).get(0) + " Arrives at " + ti.split("T")[1].split("-")[0] + "\n";
+                            break;
+                        }
                     }
                     runOnUiThread(new arrivalSnippet(mark, snip));
                 }

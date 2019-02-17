@@ -201,17 +201,19 @@ public class RealTime implements RealTimeInformation {
      * @return - Null if an error occurred
      * @author Justin Yau
      */
-    public Map<String, String> timeAtStop(String agencyId, String stopId) {
+    public Map<String, List<String>> timeAtStop(String agencyId, String stopId) {
         try {
             JSONArray data = makePostRequestOpenAPIArray("https://transloc-api-1-2.p.rapidapi.com/arrival-estimates.json?stops=" + stopId + "&callback=call&agencies=" + agencyId);
             if(data == null) { return null; }
-            Map<String, String> times = new HashMap<String, String>();
+            Map<String, List<String>> times = new HashMap<String, List<String>>();
             for(int i = 0; i < data.length(); i++) {
                 JSONArray arrivals = data.getJSONObject(i).getJSONArray("arrivals");
+                List<String> arrives = new ArrayList<>();
                 for(int j = 0; j < arrivals.length(); j++) {
                     JSONObject info = arrivals.getJSONObject(j);
-                    times.put(info.getString("route_id"), info.getString("arrival_at"));
+                    arrives.add(info.getString("arrival_at"));
                 }
+                times.put(arrivals.getJSONObject(0).getString("route_id"), arrives);
             }
             return times;
         } catch (Exception e) {

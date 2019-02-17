@@ -88,7 +88,7 @@ public interface RealTimeInformation {
      * @return - Null if an error occurred
      * @author Justin Yau
      */
-    public Map<String, String> timeAtStop(String agencyId, String stopId);
+    public Map<String, List<String>> timeAtStop(String agencyId, String stopId);
 
     /***
      * This method retrieves the list of all agencies within the specified coordinate rectangle
