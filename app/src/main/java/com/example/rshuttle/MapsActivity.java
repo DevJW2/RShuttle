@@ -102,8 +102,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         PlacesClient placesClient = Places.createClient(this);
 
 
-        downloadImage img = new downloadImage("https://www.clipartmax.com/png/middle/80-804448_school-bus-autobus-escolar-cartoon-png.png");
-        downloadImage img1 = new downloadImage("https://cdn2.iconfinder.com/data/icons/map-locations-filled-pixel-perfect/64/pin-map-location-06-512.png");
+        downloadImage img = new downloadImage("http://worldartsme.com/images/cartoon-school-bus-clipart-1.jpg");
+        downloadImage1 img1 = new downloadImage1("https://cdn2.iconfinder.com/data/icons/map-locations-filled-pixel-perfect/64/pin-map-location-06-512.png");
         Thread t = new Thread(img);
         t.start();
         Thread t1 = new Thread(img1);
@@ -292,6 +292,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     public void updateBusImage(Bitmap map) {
         this.bus = map;
+        this.bus = Bitmap.createScaledBitmap(
+                this.bus, 40, 40, false);
     }
 
     /**
