@@ -1,10 +1,31 @@
-RShuttle was thought of, designed, and implemented over BrickhackV. The idea originally came from
-some of the team members use of RIT's Shuttle app as well as a 3rd party app that kept track of
-shuttle routes for multiple colleges accross the country. Most of them used the third  party app,
-but did not like the overall package, that was bulky due to its wider use case. This app was
-smoother and better presented than RIT's app. We started by looking into how the third party app
-was able to gather the data needed in order to function. One of the design challenges that we
-was deciding the platform that we would use. We settled for android studio using java for the
-functionality. The advantages that we saw in using android studio over the two other, React and
-IOS, was due to the ease of use and avalability of compatable hardware respectivly. Our ultimate
-focus  throughout the inception of the project was the end result achiving our initial goals.
+## Inspiration
+Using the RIT shuttle map proved to be extremely tedious and hard to navigate. We decided it was time to give it a makeover and implement features that we thought would improve the app greatly. This way it would make it less of a hassle for RIT students/elderly who do not have cars to travel to the nearby stores and malls. 
+
+## What it does
+The app helps you to find the best possible route to the destination you want to go according to the RIT shuttle system. It takes real-time bus data and Google Cloud data to display relevant information to help users make their travel plans.
+
+## How we built it
+We gathered real-time bus data, routes, names, and coordinates from Open API. We then formatted the json files into data we can use in our android app. We also used a Google Cloud backend with several API's that helped make the user interface come to life and give relevant information to the user. 
+
+## Challenges we ran into
+The entire time had no experience in developing android apps or in Android Studio. 
+We had trouble finding proper documentation for sdks and API's we were using. 
+We had trouble using Google Cloud's API keys to share information/making requests with the actual server. 
+We had many XML flags and dependencies that were troublesome. 
+Many Android SDK's were deprecated. 
+
+## Accomplishments that we're proud of
+Being able to finish our app with basic targeted features. 
+
+## What we learned
+Learning Android Studio.
+Learned a lot more about GCP and it's APIs. 
+Learned a lot more about JSON files and HTTP-Requests.
+
+## What's next for RShuttle
+- Better UI for highlighted routes
+- Better algorithm for finding a route
+- Expand to RTS routes
+- Have more set bus times and schedules posted
+- Expanding the app to other colleges(Most of the code is there, we have yet to implement it)
+
