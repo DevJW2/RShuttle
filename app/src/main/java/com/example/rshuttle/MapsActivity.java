@@ -548,6 +548,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         @Override
         public void run() {
+            System.out.println(snip);
             mark.setSnippet(snip);
             mark.showInfoWindow();
         }
