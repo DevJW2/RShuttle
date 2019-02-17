@@ -16,7 +16,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
-import android.util.ArrayMap;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -81,6 +80,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Double[] target = new Double[2];
     public Map<String, String[]> stops;
     public Map<String, List<String>> routes;
+    public Double[] userLocation = new Double[2];
 
     public Map<Marker, String> stopMarkers;
     public Bitmap bus;
@@ -599,8 +599,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    private Double[] calcBusStops(Map<String, String[]> stops, Double[] target){
-        Double[] coord = new Double[2];
+    private String calcClosestStopToTarget(Map<String, String[]> stops, Double[] target){
+        //Double[] coord = new Double[2];
+        String stopKey = "";
         Double tempDistance = 1000.0;
         for(String key: stops.keySet()){
             String[] info = stops.get(key);
@@ -608,12 +609,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
             if(distance < tempDistance){
                 tempDistance = distance;
-                coord[0] = Double.parseDouble(info[1]);
-                coord[1] = Double.parseDouble(info[2]);
+                //coord[0] = Double.parseDouble(info[1]);
+                //coord[1] = Double.parseDouble(info[2]);
+                stopKey = key;
             }
         }
-        return coord;
+        return stopKey;
 
+    }
+
+    private String calcClosestRouteStopToHuman(Map<String, String[]> stops, String routeKey){
+        String stopKey = "w";
+        Double tempDistance = 1000.0;
+        List<String> theRouteKeyList = this.routes.get(routeKey);
+        for(String stopKeys: theRouteKeyList){
+            String[] info = stops.get(stopKeys);
+            if(info != null) {
+                System.out.println("LIT");
+                Double a = Math.pow(Double.parseDouble(info[1]) - userLocation[0], 2) * 1000000000;
+                Double b = Math.pow(Double.parseDouble(info[2]) - userLocation[1], 2) * 1000000000;
+                Double distance = Math.pow(a - b, 0.5);
+
+                System.out.println(distance);
+                if (distance < tempDistance) {
+                    tempDistance = distance;
+                    stopKey = stopKeys;
+                }
+            }
+        }
+
+        System.out.println(stopKey);
+
+        return stopKey;
     }
 
     /***
@@ -637,11 +664,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         thread.join();
         this.routes = run.getRoutes();
     }
-/*
-    public void getBestRoute(){
 
+    public String getBestRoute(String daKey){
+        String routeKey = "";
+        for(String key: this.routes.keySet()) {
+            for(String stopKeys: this.routes.get(key)){
+                if(stopKeys.equals(daKey)){
+                    System.out.println(this.routes.get(key).get(0));
+                    routeKey = key;
+                }
+            }
+        }
+        return routeKey;
     }
-*/
+
 
     public void createSearch(){
 
@@ -663,6 +699,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
                 target[0] = place.getLatLng().latitude;
                 target[1] = place.getLatLng().longitude;
+
+
+                String routekey = getBestRoute(calcClosestStopToTarget(stops, target));
+                System.out.println("bye");
+                //calcClosestRouteStopToHuman(stops, routekey);
 
             }
 
@@ -785,12 +826,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void onLocationChanged(Location location) {
         // New location has now been determined
-        String msg = "Updated Location: " +
+        /*String msg = "Updated Location: " +
                 Double.toString(location.getLatitude()) + "," +
-                Double.toString(location.getLongitude());
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                Double.toString(location.getLongitude());*/
+        //Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
         // You can now create a LatLng Object for use with maps
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        userLocation[0] = location.getLatitude();
+        userLocation[1] = location.getLongitude();
 
     }
 
