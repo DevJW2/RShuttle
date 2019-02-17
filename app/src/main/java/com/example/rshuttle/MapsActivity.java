@@ -159,6 +159,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     },
                     Looper.myLooper());
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try  {
+                        //Your code goes here
+                        RealTime time = new RealTime("643");
+                        float[][] locations = time.busLocations("643", "4012168");
+                        if(locations == null) {
+                            System.out.println("ERROR OCCURRED");
+                        } else {
+                            for(int i = 0; i < locations.length; i++) {
+                                System.out.println("Latitude: " + locations[i][0] + " Longitude: " + locations[i][1]);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+            thread.start();
         }
     }
 
