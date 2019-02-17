@@ -67,7 +67,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
-    public ArrayList target = new ArrayList;
 
 
 
@@ -110,30 +109,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         createSearch();
-/*
+
         if(!already_Ran) {
+            /*
             try {
                 setBusStops(mMap);
-                already_Ran = true;
             } catch (InterruptedException e) {
                 e.printStackTrace();
+            }*/
+            updateLive run = new updateLive(mMap);
+            Thread t = new Thread(run);
+            t.start();
+            already_Ran = true;
+        }
+
+    }
+
+    private class updateLive implements Runnable {
+
+        private GoogleMap map;
+
+        public updateLive(GoogleMap map) {
+            this.map = map;
+        }
+
+        public void run() {
+            while(true) {
+                try {
+                    Thread.sleep(3000);
+                    setLiveBus(this.map);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         }
-        */
-
-        if(lastTime == 0) {
-            try {
-                setLiveBus(mMap);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
-        lastTime++;
-        if(lastTime > 3000) {
-            lastTime = 0;
-        }
-
 
     }
 
@@ -243,7 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void run() {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -349,33 +358,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Map<String, String[]> stops = bees.getStops();
         for(String key: stops.keySet()) {
             String[] info = stops.get(key);
-            //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
-            //calculateBestStop(stops, target);
+            System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
             System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0]));
         }
     }
-/*
-    private ArrayList calculateBestStop(Map<String, String[]> stops, ArrayList target){
-        ArrayList coord = new ArrayList();
-        int tempTest = 0;
-        for(String key: stops.keySet()){
-            String[] info = stops.get(key);
-            int distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - target[0],2) -
-                    Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
-            if(tempTest < distance){
-                tempTest = distance;
-                coord[0] = info[1];
-                coord[1] = info[2];
-            }
-        }
 
-        return coord;
-
-    }
-*/
     /***
      * This method updates the live bus and markers
      *
@@ -407,8 +397,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO: Get info about the selected place.
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getId());
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
-                target.add(place.getLatLng().latitude);
-                target.add(place.getLatLng().longitude);
             }
 
             @Override
