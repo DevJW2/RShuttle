@@ -105,11 +105,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
         downloadImage img = new downloadImage("https://requestreduce.org/images/animated-back-to-school-clipart-9.png");
-        downloadImage1 img1 = new downloadImage1("https://cdn2.iconfinder.com/data/icons/map-locations-filled-pixel-perfect/64/pin-map-location-06-512.png");
         Thread t = new Thread(img);
         t.start();
-        Thread t1 = new Thread(img1);
-        t1.start();
     }
 
 
@@ -231,6 +228,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 RealTime time = new RealTime();
                 this.stops = time.stops("643");
+                downloadImage1 img = new downloadImage1("https://www.clipartmax.com/png/middle/240-2404964_bus-stop-stop-sign-traffic-sign-clip-art-bus-stop-sign-vector.png");
+                Thread t = new Thread(img);
+                t.start();
+                t.join();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -326,14 +327,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 conn.connect();
                 InputStream is = conn.getInputStream();
                 map = BitmapFactory.decodeStream(is);
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateBusImage(map);
-                    }
-
-                });
+                updateBusImage(map);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -378,14 +372,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 conn.connect();
                 InputStream is = conn.getInputStream();
                 map = BitmapFactory.decodeStream(is);
-                runOnUiThread(new Runnable() {
-
-                    @Override
-                    public void run() {
-                        updateStopImage(map);
-                    }
-
-                });
+                updateStopImage(map);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -523,7 +510,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0])
-                    .icon(BitmapDescriptorFactory.fromBitmap(this.stopimg)));
+                    .icon(BitmapDescriptorFactory.fromBitmap(stopimg)));
         }
     }
 

@@ -57,7 +57,7 @@ public class RealTime implements RealTimeInformation {
             JSONArray set = data.getJSONArray(agencyId);
             return set;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         return null;
     }
