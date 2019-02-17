@@ -109,29 +109,40 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         createSearch();
-/*
+
         if(!already_Ran) {
+            /*
             try {
                 setBusStops(mMap);
-                already_Ran = true;
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-        }*/
-
-        if(lastTime == 0) {
-            try {
-                setLiveBus(mMap);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            }*/
+            updateLive run = new updateLive(mMap);
+            Thread t = new Thread(run);
+            t.start();
+            already_Ran = true;
         }
 
-        lastTime++;
-        if(lastTime > 3000) {
-            lastTime = 0;
+    }
+
+    private class updateLive implements Runnable {
+
+        private GoogleMap map;
+
+        public updateLive(GoogleMap map) {
+            this.map = map;
         }
 
+        public void run() {
+            while(true) {
+                try {
+                    Thread.sleep(3000);
+                    setLiveBus(this.map);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
     }
 
@@ -241,7 +252,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void run() {
             try {
-                Thread.sleep(5000);
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
