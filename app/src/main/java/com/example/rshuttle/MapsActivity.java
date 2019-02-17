@@ -110,7 +110,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         createSearch();
-
+/*
         if(!already_Ran) {
             try {
                 setBusStops(mMap);
@@ -119,7 +119,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
         }
-/*
+*/
         if(lastTime == 0) {
             try {
                 setLiveBus(mMap);
@@ -135,7 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.remove();
             }
         }
-*/
+
 
     }
 
@@ -303,14 +303,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for(String key: stops.keySet()) {
             String[] info = stops.get(key);
             //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
-            calculateBestStop(stops);
+            //calculateBestStop(stops);
             System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0]));
         }
     }
-
+/*
     private ArrayList calculateBestStop(Map<String, String[]> stops, ArrayList target){
         ArrayList coord = new ArrayList();
         int tempTest = 0;
@@ -328,7 +328,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return coord;
 
     }
-
+*/
     /***
      * This method updates the live bus and markers
      *
