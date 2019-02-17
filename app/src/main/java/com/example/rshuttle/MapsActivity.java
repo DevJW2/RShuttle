@@ -49,7 +49,9 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,6 +93,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Map<Marker, String> stopMarkers;
     public Bitmap bus;
     public Bitmap stopimg;
+    public String[] currentStopList = {"","","","","","","","","",""};
 
     private Polyline currentPolyline;
     private ArrayList<Polyline> polyLines = new ArrayList();
@@ -100,6 +103,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                currentStopList));
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -718,6 +725,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(stopKeys.equals(daKey)){
                     System.out.println(this.routes.get(key).get(0));
                     routeKey = key;
+
+                    for(int i = 0; i < 10; i++) {
+                        currentStopList[i] = "";
+                        if(i < routes.get(key).size()) {
+                            currentStopList[i] = routes.get(key).get(i);
+                        }
+                    }
+
                 }
             }
         }
