@@ -29,6 +29,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -43,6 +44,7 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -292,7 +294,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     for(float[] bus: buses.get(key)) {
                         MarkerOptions marker = new MarkerOptions()
                                 .position(new LatLng(bus[0], bus[1]))
-                                .title(key);
+                                .title(key)
+                                .icon(BitmapDescriptorFactory.fromPath(new File("bus.png").getAbsolutePath()));
                         markers.add(map.addMarker(marker));
                     }
                 }
