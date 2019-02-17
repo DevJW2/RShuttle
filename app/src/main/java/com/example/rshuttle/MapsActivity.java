@@ -107,7 +107,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         createSearch();
-/*
+
         if(!already_Ran) {
             try {
                 setBusStops(mMap);
@@ -115,8 +115,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-        }*/
-
+        }
+/*
         if(lastTime == 0) {
             try {
                 markers = setLiveBus(mMap);
@@ -132,7 +132,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 marker.remove();
             }
         }
-
+*/
 
     }
 
@@ -259,12 +259,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Map<String, String[]> stops = bees.getStops();
         for(String key: stops.keySet()) {
             String[] info = stops.get(key);
-            System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+            //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+            calculateBestStop(stops);
             System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0]));
         }
+    }
+
+    private ArrayList calculateBestStop(Map<String, String[]> stops, ArrayList target){
+        ArrayList coord = new ArrayList();
+        int tempTest = 0;
+        for(String key: stops.keySet()){
+            String[] info = stops.get(key);
+            int distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - Double.parseDouble(target[0]),2) -
+                    Math.pow(Double.parseDouble(info[2]) - Double.parseDouble(target[1]), 2), 0.5);
+            if(tempTest < distance){
+                tempTest = distance;
+                coord[0] = info[1];
+                coord[1] = info[2];
+            }
+        }
+
+        return coord;
+
     }
 
     /***
