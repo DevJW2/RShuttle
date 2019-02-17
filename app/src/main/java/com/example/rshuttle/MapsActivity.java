@@ -241,7 +241,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
             });*/
-            //thread.start();
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, String> agencies = time.getAgencyIds("43.06354", "-77.72364", "43.09962", "-77.63356");
+                        for(String key: agencies.keySet()) {
+                            System.out.println("Name: " + key + " Agency Id:" + agencies.get(key));
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+
+            }); */
+            // thread.start();
         }
     }
 

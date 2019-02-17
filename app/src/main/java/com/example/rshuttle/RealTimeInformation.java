@@ -34,12 +34,11 @@ public interface RealTimeInformation {
      * data array.
      *
      * @param url - The url of the request
-     * @param agencyId - The agency id of the college that you want to find information about
      * @return - The data array
      * @return - NULL if error occurred
      * @author Justin Yau
      */
-    public JSONArray makePostRequestOpenAPIArray(String url, String agencyId);
+    public JSONArray makePostRequestOpenAPIArray(String url);
 
     /**
      * This method will return the bus locations associated with the agencyID (College) and routeID.
@@ -90,5 +89,22 @@ public interface RealTimeInformation {
      * @author Justin Yau
      */
     public Map<String, String> timeAtStop(String agencyId, String stopId);
+
+    /***
+     * This method retrieves the list of all agencies within the specified coordinate rectangle
+     *
+     * READ:
+     *      The map will have agency name as its key and its id as its value
+     *
+     * @param latitude - The latitude of the first point of the rectangle
+     * @param longitude - The longitude of the first point of the rectangle
+     * @param latitude1 - The latitude of the second point of the rectangle
+     * @param longitude1 - The longitude of the second point of the rectangle
+     * @return - List of all agencies within the specified coordinate rectangle
+     * @return - NULL if an error occurred
+     *
+     * @author Justin Yau
+     */
+    public Map<String, String> getAgencyIds(String latitude, String longitude, String latitude1, String longitude1);
 
 }
