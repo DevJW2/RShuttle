@@ -228,7 +228,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             try {
                 RealTime time = new RealTime();
                 this.stops = time.stops("643");
-                downloadImage1 img = new downloadImage1("https://www.clipartmax.com/png/middle/240-2404964_bus-stop-stop-sign-traffic-sign-clip-art-bus-stop-sign-vector.png");
+                downloadImage1 img = new downloadImage1("https://cdn4.iconfinder.com/data/icons/maps-and-navigation-solid-icons-vol-1/72/44-512.png");
                 Thread t = new Thread(img);
                 t.start();
                 t.join();
