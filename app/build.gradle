@@ -38,11 +38,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
-    //implementation 'org.apache.httpcomponents:httpclient:4.3.6'
-    implementation 'org.apache.httpcomponents:httpasyncclient:4.0.2'
-    implementation 'org.apache.httpcomponents:httpmime:4.3.6'
-    //implementation 'org.json:json:20140107'
-    implementation 'com.mashape.unirest:unirest-java:1.4.9'
+    implementation 'com.google.android.libraries.places:places:1.0.0'
 }
 
 
