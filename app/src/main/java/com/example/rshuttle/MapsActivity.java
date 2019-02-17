@@ -578,7 +578,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                     runOnUiThread(new arrivalSnippet(mark, snip));
                 }
-                snip += "Route Name: " + " Time of Arrival: " + "\n";
                 runOnUiThread(new arrivalSnippet(mark, snip));
             } catch (Exception e) {
                 e.printStackTrace();
