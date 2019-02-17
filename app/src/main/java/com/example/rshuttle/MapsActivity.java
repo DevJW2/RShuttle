@@ -42,6 +42,9 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 import java.util.Arrays;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 
@@ -217,6 +220,103 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     },
                     Looper.myLooper());
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try  {
+                        //Your code goes here
+                        RealTime time = new RealTime("643");
+                        float[][] locations = time.busLocations("643", "4012168");
+                        if(locations == null) {
+                            System.out.println("ERROR OCCURRED");
+                        } else {
+                            for(int i = 0; i < locations.length; i++) {
+                                System.out.println("Latitude: " + locations[i][0] + " Longitude: " + locations[i][1]);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });*/
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, List<String>> routes = time.routes("643");
+                        for(String key: routes.keySet()) {
+                            for(String info: routes.get(key)) {
+                                System.out.println("Route ID: " + key + "Stop: " + info);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }); */
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        try {
+                            RealTime time = new RealTime();
+                            Map<String, String[]> stops = time.stops("643");
+                            for(String key: stops.keySet()) {
+                                String[] info = stops.get(key);
+                                System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }); */
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, String> times = time.timeAtStop("643", "4224622");
+                        for(String key: times.keySet()) {
+                            System.out.println("Route ID: " + key + " Time of Arrival: " + times.get(key));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            });*/
+            /*
+            Thread thread = new Thread(new Runnable() {
+
+                @Override
+                public void run() {
+                    try {
+                        RealTime time = new RealTime();
+                        Map<String, String> agencies = time.getAgencyIds("43.06354", "-77.72364", "43.09962", "-77.63356");
+                        for(String key: agencies.keySet()) {
+                            System.out.println("Name: " + key + " Agency Id:" + agencies.get(key));
+                        }
+                    } catch (Exception e) {
+
+                    }
+                }
+
+            }); */
+            // thread.start();
         }
     }
 

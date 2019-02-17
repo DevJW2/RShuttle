@@ -1,17 +1,16 @@
 package com.example.rshuttle;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
-import com.mashape.unirest.http.Unirest;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import com.example.rshuttle.RealTimeInformation;
 
 /**
  * This class will contain all implementation of the methods real time data required for the
@@ -28,20 +27,9 @@ public class RealTime implements RealTimeInformation {
     // This is the api key we use to access openAPI
     public static final String openAPIKey = "7a9a8dd817mshe07f2c506c8d832p1ff971jsnb0ff5652a428";
 
-    public RealTime(String agencyId) {
-        float[][] locations = busLocations(agencyId, "4012168");
-        for(int i = 0; i < locations.length; i++) {
-            System.out.println("Latitude: " + locations[i][0] + " Longitude: " + locations[i][1]);
-        }
-    }
-
-    public static void main(String[] args) {
-        RealTime r = new RealTime("643");
-    }
-
     /**
      * This method makes a post request to the given url (has to be for rapidapi) and returns the
-     * data array.
+     * data object.
      *
      * @param url - The url of the request
      * @param agencyId - The agency id of the college that you want to find information about
@@ -49,15 +37,58 @@ public class RealTime implements RealTimeInformation {
      * @return - NULL if error occurred
      * @author Justin Yau
      */
-    public JSONArray makePostRequestOpenAPI(String url, String agencyId) {
+    public JSONArray makePostRequestOpenAPIObject(String url, String agencyId) {
         try {
-            HttpResponse<JsonNode> response = Unirest.get(url)
-                    .header("X-RapidAPI-Key", openAPIKey)
-                    .asJson();
-            JSONObject responseJson = response.getBody().getObject();
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("X-RapidAPI-Key", openAPIKey);
+            System.out.println("Response Code: " + con.getResponseCode());
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            JSONObject responseJson = new JSONObject(response.toString());
             JSONObject data = responseJson.getJSONObject("data");
             JSONArray set = data.getJSONArray(agencyId);
             return set;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * This method makes a post request to the given url (has to be for rapidapi) and returns the
+     * data array.
+     *
+     * @param url - The url of the request
+     * @return - The data array
+     * @return - NULL if error occurred
+     * @author Justin Yau
+     */
+    public JSONArray makePostRequestOpenAPIArray(String url) {
+        try {
+            URL obj = new URL(url);
+            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+            con.setRequestMethod("GET");
+            con.setRequestProperty("X-RapidAPI-Key", openAPIKey);
+            System.out.println("Response Code: " + con.getResponseCode());
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+            JSONObject responseJson = new JSONObject(response.toString());
+            JSONArray data = responseJson.getJSONArray("data");
+            return data;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -74,7 +105,7 @@ public class RealTime implements RealTimeInformation {
      */
     public float[][] busLocations(String agencyId, String routeID) {
         try {
-            JSONArray loc = makePostRequestOpenAPI("https://transloc-api-1-2.p.rapidapi.com/vehicles.json?routes=" + routeID + "&callback=call&agencies=" + agencyId, agencyId);
+            JSONArray loc = makePostRequestOpenAPIObject("https://transloc-api-1-2.p.rapidapi.com/vehicles.json?routes=" + routeID + "&callback=call&agencies=" + agencyId, agencyId);
             if(loc == null) { return null; }
             float[][] locations = new float[loc.length()][2];
             for(int i = 0; i < loc.length(); i++) {
@@ -105,7 +136,7 @@ public class RealTime implements RealTimeInformation {
     @Override
     public Map<String, List<String>> routes(String agencyId) {
         try {
-            JSONArray r = makePostRequestOpenAPI("https://transloc-api-1-2.p.rapidapi.com/routes.json?callback=call&agencies=" + agencyId, agencyId);
+            JSONArray r = makePostRequestOpenAPIObject("https://transloc-api-1-2.p.rapidapi.com/routes.json?callback=call&agencies=" + agencyId, agencyId);
             if(r == null) { return null; }
             Map<String, List<String>> routes = new HashMap<String, List<String>>();
             for(int i = 0; i < r.length(); i++) {
@@ -141,7 +172,7 @@ public class RealTime implements RealTimeInformation {
     @Override
     public Map<String, String[]> stops(String agencyId) {
         try {
-            JSONArray r = makePostRequestOpenAPI("https://transloc-api-1-2.p.rapidapi.com/stops.json?callback=call&agencies=" + agencyId, agencyId);
+            JSONArray r = makePostRequestOpenAPIArray("https://transloc-api-1-2.p.rapidapi.com/stops.json?callback=call&agencies=" + agencyId);
             if(r == null) { return null; }
             Map<String, String[]> stops = new HashMap<String, String[]>();
             for(int i = 0; i < r.length(); i++) {
@@ -151,6 +182,7 @@ public class RealTime implements RealTimeInformation {
                 JSONObject cord = stop.getJSONObject("location");
                 info[1] = cord.getString("lat");
                 info[2] = cord.getString("lng");
+                stops.put(stop.getString("stop_id"), info);
             }
             return stops;
         } catch (Exception e) {
@@ -171,7 +203,7 @@ public class RealTime implements RealTimeInformation {
      */
     public Map<String, String> timeAtStop(String agencyId, String stopId) {
         try {
-            JSONArray data = makePostRequestOpenAPI("https://transloc-api-1-2.p.rapidapi.com/arrival-estimates.json?stops=" + stopId + "&callback=call&agencies=" + agencyId, agencyId);
+            JSONArray data = makePostRequestOpenAPIArray("https://transloc-api-1-2.p.rapidapi.com/arrival-estimates.json?stops=" + stopId + "&callback=call&agencies=" + agencyId);
             if(data == null) { return null; }
             Map<String, String> times = new HashMap<String, String>();
             for(int i = 0; i < data.length(); i++) {
@@ -182,6 +214,37 @@ public class RealTime implements RealTimeInformation {
                 }
             }
             return times;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /***
+     * This method retrieves the list of all agencies within the specified coordinate rectangle
+     *
+     * READ:
+     *      The map will have agency name as its key and its id as its value
+     *
+     * @param latitude - The latitude of the first point of the rectangle
+     * @param longitude - The longitude of the first point of the rectangle
+     * @param latitude1 - The latitude of the second point of the rectangle
+     * @param longitude1 - The longitude of the second point of the rectangle
+     * @return - List of all agencies within the specified coordinate rectangle
+     * @return - NULL if an error occurred
+     *
+     * @author Justin Yau
+     */
+    public Map<String, String> getAgencyIds(String latitude, String longitude, String latitude1, String longitude1) {
+        try {
+            JSONArray data = makePostRequestOpenAPIArray("https://transloc-api-1-2.p.rapidapi.com/agencies.json?callback=call&geo_area=" + latitude + "%2C" + longitude + "%7C" + latitude1 + "%2C" + longitude1);
+            if(data == null) { return null; }
+            Map<String, String> agencies = new HashMap<String, String>();
+            for(int i = 0; i < data.length(); i++) {
+                JSONObject agency = data.getJSONObject(i);
+                agencies.put(agency.getString("long_name"), agency.getString("agency_id"));
+            }
+            return agencies;
         } catch (Exception e) {
             e.printStackTrace();
         }
