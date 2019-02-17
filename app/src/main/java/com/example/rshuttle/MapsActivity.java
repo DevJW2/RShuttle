@@ -617,7 +617,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Date date2 = format.parse(format.format(date));
                         long diff = date1.getTime() - date2.getTime();
                         long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
+                        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff - (minutes * 60000));
                         snip += "Route: " + routes.get(key).get(0) + " Arrives in " + minutes + " mins " + seconds + " seconds \n";
                     }
                     runOnUiThread(new arrivalSnippet(mark, snip));
