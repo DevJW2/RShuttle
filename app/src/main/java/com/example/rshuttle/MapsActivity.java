@@ -520,7 +520,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 public boolean onMarkerClick(Marker marker) {
 
                     if(marker.equals(mark)) {
-                        mark.showInfoWindow();
                         updateBusArrivals(marker);
                         return true;
                     }
@@ -550,6 +549,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         public void run() {
             mark.setSnippet(snip);
+            mark.showInfoWindow();
         }
 
     }
