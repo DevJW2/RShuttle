@@ -78,6 +78,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public static int MY_LOCATION_REQUEST_CODE = 99;
     public Double[] target = new Double[2];
     public Map<String, String[]> stops;
+    public Map<String, List<String>> routes;
 
     public Bitmap bus;
     public Bitmap stopimg;
@@ -130,15 +131,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createSearch();
 
         if(!already_Ran) {
-            /*
+
             try {
                 setBusStops(mMap);
+                getDaRoutes(mMap);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            }
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
-            t.start();
+            //t.start();
             already_Ran = true;
         }
 
@@ -477,7 +479,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private class routesData implements Runnable {
+        private GoogleMap map;
+        private Map<String, List<String>> routes;
 
+        public routesData(GoogleMap map) {
+            this.map = map;
+
+        }
+        public void run() {
+            try {
+                RealTime time = new RealTime();
+                this.routes = time.routes("643");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        public Map<String, List<String>> getRoutes(){
+            return this.routes;
+        }
+    }
 
     /***
      * This method retrieves and creates markers for all the bus stops
@@ -532,11 +553,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread thread = new Thread(run);
         thread.start();
     }
+
+    public void getDaRoutes(GoogleMap map) throws InterruptedException{
+        routesData run = new routesData(map);
+        Thread thread = new Thread(run);
+        thread.start();
+        thread.join();
+        this.routes = run.getRoutes();
+    }
 /*
     public void getBestRoute(){
 
     }
-   */
+*/
 
     public void createSearch(){
 
@@ -559,7 +588,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 target[0] = place.getLatLng().latitude;
                 target[1] = place.getLatLng().longitude;
 
-                getBestRoute();
             }
 
             @Override
