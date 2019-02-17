@@ -4,6 +4,8 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -45,6 +47,11 @@ import com.google.android.libraries.places.widget.listener.PlaceSelectionListene
 
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.file.FileSystems;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -69,9 +76,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
-
-
     public Double[] target = new Double[2];
+
+    public Bitmap bus;
+    public Bitmap stopimg;
     public Map<String, String[]> stops;
 
 
@@ -94,8 +102,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         PlacesClient placesClient = Places.createClient(this);
 
 
-
-
+        downloadImage img = new downloadImage("https://www.clipartmax.com/png/middle/80-804448_school-bus-autobus-escolar-cartoon-png.png");
+        downloadImage img1 = new downloadImage("https://cdn2.iconfinder.com/data/icons/map-locations-filled-pixel-perfect/64/pin-map-location-06-512.png");
+        Thread t = new Thread(img);
+        t.start();
+        Thread t1 = new Thread(img1);
+        t1.start();
     }
 
 
@@ -118,15 +130,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createSearch();
 
         if(!already_Ran) {
-
+            /*
             try {
                 setBusStops(mMap);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
-            //t.start();
+            t.start();
             already_Ran = true;
         }
 
@@ -273,6 +285,111 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This method updates the current bitmap of the bus image
+     * @param map - The bus bitmap
+     * @author Justin Yau
+     */
+    public void updateBusImage(Bitmap map) {
+        this.bus = map;
+    }
+
+    /**
+     * This class is to be called when you need to download an image on a different thread
+     *
+     * @author Justin Yau
+     */
+    private class downloadImage implements Runnable {
+
+        private String url;
+        private Bitmap map;
+
+        public downloadImage(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if (url == null) {
+                    return;
+                }
+                URL url = new URL(this.url);
+                HttpURLConnection conn = null;
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true);
+                conn.connect();
+                InputStream is = conn.getInputStream();
+                map = BitmapFactory.decodeStream(is);
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        updateBusImage(map);
+                    }
+
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /***
+     * This method updates the current image bitmap of the stop
+     * @param map - The bitmap of the stop
+     * @author Justin Yau
+     */
+    public void updateStopImage(Bitmap map) {
+        this.stopimg = map;
+    }
+
+    /**
+     * This class is to be called when you need to download an image on a different thread
+     *
+     * @author Justin Yau
+     */
+    private class downloadImage1 implements Runnable {
+
+        private String url;
+        private Bitmap map;
+
+        public downloadImage1(String url) {
+            this.url = url;
+        }
+
+        @Override
+        public void run() {
+            try {
+                if(url == null) {
+                    return;
+                }
+                URL url = new URL(this.url);
+                HttpURLConnection conn = null;
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoInput(true);
+                conn.connect();
+                InputStream is = conn.getInputStream();
+                map = BitmapFactory.decodeStream(is);
+                runOnUiThread(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        updateStopImage(map);
+                    }
+
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Bitmap getMap() {
+            return this.map;
+        }
+
+    }
+
     /**
      * This class is to be called when the live bus thread finishes gathering all of its live bus data
      *
@@ -283,10 +400,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         private GoogleMap map;
         private liveBus run;
         private List<Marker> markers;
+        private Bitmap bus;
 
-        public uiLive(GoogleMap map, liveBus run) {
+        public uiLive(GoogleMap map, liveBus run, Bitmap bus) {
             this.map = map;
             this.run = run;
+            this.bus = bus;
         }
 
         @Override
@@ -299,7 +418,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         MarkerOptions marker = new MarkerOptions()
                                 .position(new LatLng(bus[0], bus[1]))
                                 .title(key)
-                                .icon(BitmapDescriptorFactory.fromPath(new File("bus.png").getAbsolutePath()));
+                                .icon(BitmapDescriptorFactory.fromBitmap(this.bus));
                         markers.add(map.addMarker(marker));
                     }
                 }
@@ -321,11 +440,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     private class liveBus implements Runnable {
         private GoogleMap map;
+        private Bitmap bus;
         private Map<String, float[][]> buses;
         private Map<String, List<String>> routes;
 
-        public liveBus(GoogleMap map) {
+        public liveBus(GoogleMap map, Bitmap bus) {
             this.map = map;
+            this.bus = bus;
         }
         public void run() {
             try {
@@ -339,7 +460,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         this.buses.put(routes.get(key).get(0), time.busLocations("643", key));
                     }
                 }
-                runOnUiThread(new uiLive(this.map, this));
+                runOnUiThread(new uiLive(this.map, this, bus));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -405,7 +526,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @author Justin Yau
      */
     public void setLiveBus(GoogleMap map) throws InterruptedException{
-        liveBus run = new liveBus(map);
+        liveBus run = new liveBus(map, bus);
         Thread thread = new Thread(run);
         thread.start();
     }
