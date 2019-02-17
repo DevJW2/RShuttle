@@ -67,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
+    public Double[] target = new Double[2];
 
 
 
@@ -257,7 +258,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         public void run() {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(2500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -363,14 +364,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Map<String, String[]> stops = bees.getStops();
         for(String key: stops.keySet()) {
             String[] info = stops.get(key);
-            System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
-            System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
+            //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+            //System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
+            //calcBusStops(stops, target);
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0]));
         }
     }
+/*
+    private Double[] calcBusStops(Map<String, String[]> stops, ArrayList target){
+        Double[] coord = new Double[2];
+        Double tempDistance = 0.0;
+        for(String key: stops.keySet()){
+            String[] info = stops.get(key);
+            Double distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - (Double)target[0], 2) -
+                    Math.pow(Double.parseDouble(info[2]) - (Double)target[1], 2), 0.5);
+            if(tempDistance < distance){
+                tempDistance = distance;
+                coord[0] = Double.parseDouble(info[1]);
+                coord[1] = Double.parseDouble(info[2]);
+            }
+        }
+        System.out.println(coord);
 
+        return coord;
+
+    }
+*/
     /***
      * This method updates the live bus and markers
      *
@@ -402,6 +423,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO: Get info about the selected place.
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getId());
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
+                //target[0] = place.getLatLng().latitude;
+                //target[1] = place.getLatLng().longitude;
+
             }
 
             @Override
