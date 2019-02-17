@@ -227,7 +227,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     System.out.println(key);
                     float[][] buses = time.busLocations("643", key);
                     if(buses != null) {
-                        this.buses.put(key, time.busLocations("643", key));
+                        this.buses.put(routes.get(key).get(0), time.busLocations("643", key));
                     }
                 }
             } catch (Exception e) {
@@ -281,14 +281,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         thread.start();
         thread.join();
         Map<String, float[][]> buses = run.getBuses();
-        Map<String, List<String>> routes = run.getRoutes();
         List<Marker> markers = new ArrayList<>();
         for(String key: buses.keySet()) {
             if(buses.get(key) != null) {
                 for(float[] bus: buses.get(key)) {
                     MarkerOptions marker = new MarkerOptions()
                             .position(new LatLng(bus[0], bus[1]))
-                            .title(routes.get(key).get(0));
+                            .title(key);
                     markers.add(map.addMarker(marker));
                 }
             }
