@@ -53,12 +53,15 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.FileSystems;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import afu.org.checkerframework.checker.oigj.qual.O;
 
@@ -574,7 +577,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 String snip = "";
                 if(times != null) {
                     for(String key: times.keySet()) {
-                        snip += "Route: " + routes.get(key).get(0) + " Arrives: " + times.get(key) + "\n";
+                        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+                        Date date1 = format.parse(times.get(key).split("T")[1].split("-")[0]);
+                        Date date = new Date();
+                        Date date2 = format.parse(format.format(date));
+                        long diff = date1.getTime() - date2.getTime();
+                        long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
+                        long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
+                        snip += "Route: " + routes.get(key).get(0) + " Arrives in " + minutes + " mins " + seconds + " seconds \n";
                     }
                     runOnUiThread(new arrivalSnippet(mark, snip));
                 }
