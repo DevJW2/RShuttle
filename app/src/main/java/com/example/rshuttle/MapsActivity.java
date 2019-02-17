@@ -177,6 +177,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }*/
 
+    /***
+     * This class is to be used in co-junction with setBusStop to place stop markers
+     *
+     * @author Justin Yau, Jeffrey Weng
+     */
     private class stopRunnable implements Runnable {
 
         private GoogleMap map;
@@ -200,6 +205,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This class is meant to be used in co-junction with setLiveBus to update live bus markers
+     *
+     * @author Justin Yau
+     */
     private class liveBus implements Runnable {
         private GoogleMap map;
         private Map<String, float[][]> buses;
@@ -234,6 +244,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /***
+     * This method retrieves and creates markers for all the bus stops
+     *
+     * @param map - The map
+     * @throws InterruptedException
+     * @author Justin Yau, Jeffrey Weng
+     */
     public void setBusStops(GoogleMap map) throws InterruptedException{
         stopRunnable bees = new stopRunnable(map);
         Thread thread = new Thread(bees);
@@ -250,6 +267,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    /***
+     * This method updates the live bus and markers
+     *
+     * @param map - The map
+     * @return - A list of markers set representing the live bus
+     * @throws InterruptedException
+     * @author Justin Yau
+     */
     public List<Marker> setLiveBus(GoogleMap map) throws InterruptedException{
         liveBus run = new liveBus(map);
         Thread thread = new Thread(run);
