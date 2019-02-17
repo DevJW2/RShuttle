@@ -46,11 +46,12 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
-
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.FileSystems;
@@ -83,8 +84,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public Map<String, List<String>> routes;
     public Double[] userLocation = new Double[2];
 
+    public Map<Marker, String> stopMarkers;
     public Bitmap bus;
     public Bitmap stopimg;
+    public String[] currentStopList = {"","","","","","","","","",""};
 
 
     //Initialization
@@ -92,6 +95,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
+
+        ListView listView = findViewById(R.id.listView);
+        listView.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,
+                currentStopList));
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -109,6 +116,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         downloadImage img = new downloadImage("https://requestreduce.org/images/animated-back-to-school-clipart-9.png");
         Thread t = new Thread(img);
         t.start();
+        stopMarkers = new HashMap<>();
     }
 
 
@@ -509,12 +517,85 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             String[] info = this.stops.get(key);
             //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
             //System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
-            map.addMarker(new MarkerOptions()
+            final Marker mark = map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0])
                     .icon(BitmapDescriptorFactory.fromBitmap(stopimg)));
+            stopMarkers.put(mark, key);
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
+                    updateBusArrivals(marker);
+                    return true;
+                }
+            });
         }
     }
+
+    /***
+     * This updates the snippet of the marker with the inputted on the main thread
+     *
+     * @author Justin Yau
+     */
+    private class arrivalSnippet implements Runnable {
+
+        private Marker mark;
+        private String snip;
+
+        public arrivalSnippet(Marker mark, String snip) {
+            this.mark = mark;
+            this.snip = snip;
+        }
+
+        @Override
+        public void run() {
+            mark.setSnippet(snip);
+        }
+
+    }
+
+    /***
+     * This class is meant to be run on a different thread to gather routes and arrival times which will
+     * then call a thread on the main thread to update the snippet of the marker
+     *
+     * @author Justin Yau
+     */
+    private class updateArrivals implements Runnable {
+
+        private Marker mark;
+        private String stopId;
+
+        public updateArrivals(Marker mark, String stopId) {
+            this.mark = mark;
+            this.stopId = stopId;
+        }
+
+        @Override
+        public void run() {
+            try {
+                RealTime time = new RealTime();
+                Map<String, List<String>> routes = time.routes("643");
+                Map<String, String> times = time.timeAtStop("643", stopId);
+                String snip = "";
+                for(String key: times.keySet()) {
+                    snip += "Route Name: " + routes.get(key).get(0) + " Time of Arrival: " + times.get(key) + "\n";
+                }
+                runOnUiThread(new arrivalSnippet(mark, snip));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void updateBusArrivals(Marker marker) {
+        if(stopMarkers.size() != 0) {
+            String stopId = stopMarkers.get(marker);
+            Thread thread = new Thread(new updateArrivals(marker, stopId));
+            thread.start();
+        }
+    }
+
 
     private String calcClosestStopToTarget(Map<String, String[]> stops, Double[] target){
         //Double[] coord = new Double[2];
@@ -589,6 +670,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if(stopKeys.equals(daKey)){
                     System.out.println(this.routes.get(key).get(0));
                     routeKey = key;
+
+                    for(int i = 0; i < 10; i++) {
+                        currentStopList[i] = "";
+                        if(i < routes.get(key).size()) {
+                            currentStopList[i] = routes.get(key).get(i);
+                        }
+                    }
+
                 }
             }
         }
