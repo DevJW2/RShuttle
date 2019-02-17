@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.support.annotation.MainThread;
 import android.support.annotation.NonNull;
 
 import android.support.v4.app.ActivityCompat;
@@ -48,6 +49,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import afu.org.checkerframework.checker.oigj.qual.O;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -119,7 +122,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(lastTime == 0) {
             try {
-                markers = setLiveBus(mMap);
+                setLiveBus(mMap);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -205,6 +208,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /**
+     * This class is to be called when the live bus thread finishes gathering all of its live bus data
+     *
+     * @author Justin Yau
+     */
+    private class uiLive implements Runnable {
+
+        private GoogleMap map;
+        private liveBus run;
+
+        public uiLive(GoogleMap map, liveBus run) {
+            this.map = map;
+            this.run = run;
+        }
+
+        @Override
+        public void run() {
+            Map<String, float[][]> buses = run.getBuses();
+            markers = new ArrayList<>();
+            for(String key: buses.keySet()) {
+                if(buses.get(key) != null) {
+                    for(float[] bus: buses.get(key)) {
+                        MarkerOptions marker = new MarkerOptions()
+                                .position(new LatLng(bus[0], bus[1]))
+                                .title(key);
+                        markers.add(map.addMarker(marker));
+                    }
+                }
+            }
+        }
+
+        public List<Marker> getMarkers() {
+            return markers;
+        }
+
+    }
+
     /***
      * This class is meant to be used in co-junction with setLiveBus to update live bus markers
      *
@@ -226,10 +266,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 for(String key: this.routes.keySet()) {
                     System.out.println(key);
                     float[][] buses = time.busLocations("643", key);
-                    if(buses != null) {
+                    if (buses != null) {
                         this.buses.put(routes.get(key).get(0), time.busLocations("643", key));
                     }
                 }
+                runOnUiThread(new uiLive(this.map, this));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -243,6 +284,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return this.routes;
         }
     }
+
+
 
     /***
      * This method retrieves and creates markers for all the bus stops
@@ -275,24 +318,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * @throws InterruptedException
      * @author Justin Yau
      */
-    public List<Marker> setLiveBus(GoogleMap map) throws InterruptedException{
+    public void setLiveBus(GoogleMap map) throws InterruptedException{
         liveBus run = new liveBus(map);
         Thread thread = new Thread(run);
         thread.start();
-        thread.join();
-        Map<String, float[][]> buses = run.getBuses();
-        List<Marker> markers = new ArrayList<>();
-        for(String key: buses.keySet()) {
-            if(buses.get(key) != null) {
-                for(float[] bus: buses.get(key)) {
-                    MarkerOptions marker = new MarkerOptions()
-                            .position(new LatLng(bus[0], bus[1]))
-                            .title(key);
-                    markers.add(map.addMarker(marker));
-                }
-            }
-        }
-        return markers;
     }
 
     public void createSearch(){
