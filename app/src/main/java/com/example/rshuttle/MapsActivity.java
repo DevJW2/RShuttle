@@ -77,10 +77,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
     public Double[] target = new Double[2];
+    public Map<String, String[]> stops;
 
     public Bitmap bus;
     public Bitmap stopimg;
-    public Map<String, String[]> stops;
 
 
     //Initialization
@@ -530,11 +530,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread thread = new Thread(run);
         thread.start();
     }
-    /*
+/*
     public void getBestRoute(){
-        calcBusStops(stops, target);
 
-    }*/
+    }
+   */
 
     public void createSearch(){
 
@@ -556,6 +556,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
                 target[0] = place.getLatLng().latitude;
                 target[1] = place.getLatLng().longitude;
+
+                getBestRoute();
             }
 
             @Override
