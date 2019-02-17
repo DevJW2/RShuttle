@@ -67,6 +67,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
+    public ArrayList target = new ArrayList;
 
 
 
@@ -118,7 +119,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
         }
-*/
+        */
+
         if(lastTime == 0) {
             try {
                 setLiveBus(mMap);
@@ -348,7 +350,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for(String key: stops.keySet()) {
             String[] info = stops.get(key);
             //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
-            //calculateBestStop(stops);
+            //calculateBestStop(stops, target);
             System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
@@ -361,8 +363,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int tempTest = 0;
         for(String key: stops.keySet()){
             String[] info = stops.get(key);
-            int distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - Double.parseDouble(target[0]),2) -
-                    Math.pow(Double.parseDouble(info[2]) - Double.parseDouble(target[1]), 2), 0.5);
+            int distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - target[0],2) -
+                    Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
             if(tempTest < distance){
                 tempTest = distance;
                 coord[0] = info[1];
@@ -405,6 +407,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 // TODO: Get info about the selected place.
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getId());
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
+                target.add(place.getLatLng().latitude);
+                target.add(place.getLatLng().longitude);
             }
 
             @Override
