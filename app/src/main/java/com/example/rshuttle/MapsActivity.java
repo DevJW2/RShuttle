@@ -724,6 +724,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         return routeKey;
     }
 
+    public Double distanceFormula(LatLng origin, LatLng dest){
+        Double a = Math.pow(origin.latitude - dest.latitude , 2);
+        Double b = Math.pow(dest.longitude - dest.longitude, 2);
+        Double distance = Math.pow(Math.abs((a - b)), 0.5);
+
+        return distance;
+    }
+
+
 
     public void createSearch(){
 
@@ -768,11 +777,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         Double.parseDouble(stops.get(targetStopClosestKey)[2]));
                 LatLng pos4 = new LatLng(target[0], target[1]);
 
-                createPoly(pos1, pos2, "walking");
-                createPoly(pos2, pos3, "driving");
-                createPoly(pos3, pos4, "walking");
 
+                if(distanceFormula(pos1, pos4) < distanceFormula(pos2, pos3)){
+                    createPoly(pos1, pos4, "walking");
+                }
+                else {
+                    createPoly(pos1, pos2, "walking");
+                    createPoly(pos2, pos3, "driving");
+                    createPoly(pos3, pos4, "walking");
+                }
 
+                goToFinalLocation(pos4);
 
             }
 
@@ -936,6 +951,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
                 .zoom(17)                   // Sets the zoom
+                .build();                   // Creates a CameraPosition from the builder
+        mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+    }
+
+    public void goToFinalLocation(LatLng loc){
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(loc, 13));
+
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(loc)      // Sets the center of the map to location user
+                .zoom(14)                   // Sets the zoom
                 .build();                   // Creates a CameraPosition from the builder
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
