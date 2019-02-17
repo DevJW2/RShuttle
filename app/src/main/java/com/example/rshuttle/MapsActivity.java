@@ -30,6 +30,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -40,8 +42,10 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +57,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private LocationRequest mLocationRequest;
+    private boolean already_Ran = false;
+    private int lastTime = 0;
+    private List<Marker> markers;
 
     private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
@@ -100,6 +107,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setOnMyLocationButtonClickListener(this);
         mMap.setOnMyLocationClickListener(this);
         createSearch();
+/*
+        if(!already_Ran) {
+            try {
+                setBusStops(mMap);
+                already_Ran = true;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }*/
+
+        if(lastTime == 0) {
+            try {
+                markers = setLiveBus(mMap);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+
+        lastTime++;
+        if(lastTime > 3000) {
+            lastTime = 0;
+            for(Marker marker: markers) {
+                marker.remove();
+            }
+        }
+
+
     }
 
     //Gives me the current Location when you press yourself
@@ -142,6 +176,100 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         }
     }*/
+
+    private class stopRunnable implements Runnable {
+
+        private GoogleMap map;
+        private Map<String, String[]> stops;
+
+        public stopRunnable(GoogleMap map) {
+            this.map = map;
+        }
+        public void run() {
+            try {
+                RealTime time = new RealTime();
+                this.stops = time.stops("643");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Map<String, String[]> getStops() {
+            return this.stops;
+        }
+
+    }
+
+    private class liveBus implements Runnable {
+        private GoogleMap map;
+        private Map<String, float[][]> buses;
+        private Map<String, List<String>> routes;
+
+        public liveBus(GoogleMap map) {
+            this.map = map;
+        }
+        public void run() {
+            try {
+                RealTime time = new RealTime();
+                this.routes = time.routes("643");
+                this.buses = new HashMap<>();
+                for(String key: this.routes.keySet()) {
+                    System.out.println(key);
+                    float[][] buses = time.busLocations("643", key);
+                    if(buses != null) {
+                        this.buses.put(key, time.busLocations("643", key));
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        public Map<String, float[][]> getBuses() {
+            return this.buses;
+        }
+
+        public Map<String, List<String>> getRoutes() {
+            return this.routes;
+        }
+    }
+
+    public void setBusStops(GoogleMap map) throws InterruptedException{
+        stopRunnable bees = new stopRunnable(map);
+        Thread thread = new Thread(bees);
+        thread.start();
+        thread.join();
+        Map<String, String[]> stops = bees.getStops();
+        for(String key: stops.keySet()) {
+            String[] info = stops.get(key);
+            System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
+            System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
+            map.addMarker(new MarkerOptions()
+                    .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
+                    .title(info[0]));
+        }
+    }
+
+    public List<Marker> setLiveBus(GoogleMap map) throws InterruptedException{
+        liveBus run = new liveBus(map);
+        Thread thread = new Thread(run);
+        thread.start();
+        thread.join();
+        Map<String, float[][]> buses = run.getBuses();
+        Map<String, List<String>> routes = run.getRoutes();
+        List<Marker> markers = new ArrayList<>();
+        for(String key: buses.keySet()) {
+            if(buses.get(key) != null) {
+                for(float[] bus: buses.get(key)) {
+                    MarkerOptions marker = new MarkerOptions()
+                            .position(new LatLng(bus[0], bus[1]))
+                            .title(routes.get(key).get(0));
+                    markers.add(map.addMarker(marker));
+                }
+            }
+        }
+        return markers;
+    }
 
     public void createSearch(){
 
@@ -220,27 +348,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     },
                     Looper.myLooper());
-            /*
-            Thread thread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    try  {
-                        //Your code goes here
-                        RealTime time = new RealTime("643");
-                        float[][] locations = time.busLocations("643", "4012168");
-                        if(locations == null) {
-                            System.out.println("ERROR OCCURRED");
-                        } else {
-                            for(int i = 0; i < locations.length; i++) {
-                                System.out.println("Latitude: " + locations[i][0] + " Longitude: " + locations[i][1]);
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            });*/
             /*
             Thread thread = new Thread(new Runnable() {
 
@@ -260,28 +368,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
 
             }); */
-            /*
-            Thread thread = new Thread(new Runnable() {
 
-                @Override
-                public void run() {
-                    try {
-                        try {
-                            RealTime time = new RealTime();
-                            Map<String, String[]> stops = time.stops("643");
-                            for(String key: stops.keySet()) {
-                                String[] info = stops.get(key);
-                                System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-
-            }); */
             /*
             Thread thread = new Thread(new Runnable() {
 
