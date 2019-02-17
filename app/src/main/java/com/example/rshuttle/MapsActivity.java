@@ -140,7 +140,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
-            t.start();
+            //t.start();
             already_Ran = true;
         }
 
@@ -523,8 +523,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private Double[] calcBusStops(Map<String, String[]> stops, Double[] target){
-        Double[] coord = new Double[2];
+    private String calcBusStops(Map<String, String[]> stops, Double[] target){
+        //Double[] coord = new Double[2];
+        String stopKey = "";
         Double tempDistance = 1000.0;
         for(String key: stops.keySet()){
             String[] info = stops.get(key);
@@ -532,11 +533,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
             if(distance < tempDistance){
                 tempDistance = distance;
-                coord[0] = Double.parseDouble(info[1]);
-                coord[1] = Double.parseDouble(info[2]);
+                //coord[0] = Double.parseDouble(info[1]);
+                //coord[1] = Double.parseDouble(info[2]);
+                stopKey = key;
             }
         }
-        return coord;
+        return stopKey;
 
     }
 
@@ -561,11 +563,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         thread.join();
         this.routes = run.getRoutes();
     }
-/*
-    public void getBestRoute(){
 
+    public String getBestRoute(String daKey){
+        String routeKey = "";
+        for(String key: this.routes.keySet()) {
+            for(String stopKeys: this.routes.get(key)){
+                if(stopKeys.equals(daKey)){
+                    System.out.println(this.routes.get(key).get(0));
+                    routeKey = key;
+                }
+            }
+        }
+        return routeKey;
     }
-*/
+
 
     public void createSearch(){
 
@@ -587,6 +598,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
                 target[0] = place.getLatLng().latitude;
                 target[1] = place.getLatLng().longitude;
+
+
+                getBestRoute(calcBusStops(stops, target));
 
             }
 
