@@ -226,6 +226,30 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    /***
+     * This class is meant to be used as a new thread to remove markers
+     *
+     * @author Justin Yau
+     */
+    private class liveT implements Runnable {
+
+        private removeLiveRun run;
+
+        public liveT(removeLiveRun run) {
+            this.run = run;
+        }
+
+        public void run() {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            runOnUiThread(run);
+        }
+
+    }
+
     /**
      * This class is to be called when the live bus thread finishes gathering all of its live bus data
      *
@@ -256,7 +280,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 }
             }
-            runOnUiThread(new removeLiveRun(markers));
+            Thread t = new Thread(new liveT(new removeLiveRun(markers)));
+            t.start();
         }
 
         public List<Marker> getMarkers() {
