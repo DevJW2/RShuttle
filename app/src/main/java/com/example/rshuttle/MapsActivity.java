@@ -642,8 +642,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Double tempDistance = 1000.0;
         for(String key: stops.keySet()){
             String[] info = stops.get(key);
-            Double distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - target[0], 2) -
-                    Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
+            Double a = Math.pow(Double.parseDouble(info[1]) - target[0], 2);
+            Double b = Math.pow(Double.parseDouble(info[2]) - target[1], 2);
+            Double distance = Math.pow(Math.abs(a - b), 0.5);
             if(distance < tempDistance){
                 tempDistance = distance;
                 //coord[0] = Double.parseDouble(info[1]);
