@@ -31,6 +31,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -346,6 +347,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     public void updateStopImage(Bitmap map) {
         this.stopimg = map;
+        this.stopimg = Bitmap.createScaledBitmap(
+                this.stopimg, 80, 80, false);
     }
 
     /**
@@ -519,7 +522,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
-                    .title(info[0]));
+                    .title(info[0])
+                    .icon(BitmapDescriptorFactory.fromBitmap(this.stopimg)));
         }
     }
 
