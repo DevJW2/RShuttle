@@ -69,8 +69,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public static int MY_LOCATION_REQUEST_CODE = 99;
-    public Double[] target = new Double[2];
 
+
+    public Double[] target = new Double[2];
+    public Map<String, String[]> stops;
 
 
     //Initialization
@@ -90,6 +92,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Create a new Places client instance.
         PlacesClient placesClient = Places.createClient(this);
+
+
 
 
     }
@@ -114,12 +118,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createSearch();
 
         if(!already_Ran) {
-            /*
+
             try {
                 setBusStops(mMap);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }*/
+            }
             updateLive run = new updateLive(mMap);
             Thread t = new Thread(run);
             //t.start();
@@ -364,37 +368,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread thread = new Thread(bees);
         thread.start();
         thread.join();
-        Map<String, String[]> stops = bees.getStops();
-        for(String key: stops.keySet()) {
-            String[] info = stops.get(key);
+        this.stops = bees.getStops();
+        for(String key: this.stops.keySet()) {
+            String[] info = this.stops.get(key);
             //System.out.println("Stop ID: " + key + " Name: " + info[0] + " Latitude: " + info[1] + " Longitude: " + info[2]);
             //System.out.println((Double.parseDouble(info[1]) + " " + Double.parseDouble(info[2])));
-            //calcBusStops(stops, target);
             map.addMarker(new MarkerOptions()
                     .position(new LatLng(Double.parseDouble(info[1]), Double.parseDouble(info[2])))
                     .title(info[0]));
         }
     }
-/*
-    private Double[] calcBusStops(Map<String, String[]> stops, ArrayList target){
+
+    private Double[] calcBusStops(Map<String, String[]> stops, Double[] target){
         Double[] coord = new Double[2];
-        Double tempDistance = 0.0;
+        Double tempDistance = 1000.0;
         for(String key: stops.keySet()){
             String[] info = stops.get(key);
-            Double distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - (Double)target[0], 2) -
-                    Math.pow(Double.parseDouble(info[2]) - (Double)target[1], 2), 0.5);
-            if(tempDistance < distance){
+            Double distance = Math.pow(Math.pow(Double.parseDouble(info[1]) - target[0], 2) -
+                    Math.pow(Double.parseDouble(info[2]) - target[1], 2), 0.5);
+            if(distance < tempDistance){
                 tempDistance = distance;
                 coord[0] = Double.parseDouble(info[1]);
                 coord[1] = Double.parseDouble(info[2]);
             }
         }
-        System.out.println(coord);
-
         return coord;
 
     }
-*/
+
     /***
      * This method updates the live bus and markers
      *
@@ -408,6 +409,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Thread thread = new Thread(run);
         thread.start();
     }
+    /*
+    public void getBestRoute(){
+        calcBusStops(stops, target);
+
+    }*/
 
     public void createSearch(){
 
@@ -424,11 +430,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
+                Double[] target = new Double[2];
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getId());
                 Log.i("Maps", "Place: " + place.getName() + ", " + place.getLatLng());
-                //target[0] = place.getLatLng().latitude;
-                //target[1] = place.getLatLng().longitude;
-
+                target[0] = place.getLatLng().latitude;
+                target[1] = place.getLatLng().longitude;
             }
 
             @Override
