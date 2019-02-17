@@ -518,14 +518,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
-
-                    if(marker.equals(mark)) {
-                        updateBusArrivals(marker);
-                        return true;
-                    }
-                    mark.hideInfoWindow();
-                    return false;
-
+                    updateBusArrivals(marker);
+                    return true;
                 }
             });
         }
